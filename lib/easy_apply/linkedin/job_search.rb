@@ -20,17 +20,28 @@ module EasyApply
 
       # Skills that map to more recognizable search terms for LinkedIn
       SKILL_DISPLAY_NAMES = {
+        'ruby_on_rails' => 'Ruby on Rails',
         'rails' => 'Ruby on Rails',
+        'ruby' => 'Ruby',
         'nodejs' => 'Node.js',
+        'node' => 'Node.js',
         'nextjs' => 'Next.js',
+        'next_js' => 'Next.js',
         'vuejs' => 'Vue.js',
+        'vue_js' => 'Vue.js',
+        'react_js' => 'React',
         'react_native' => 'React Native',
+        'golang' => 'Golang',
+        'go' => 'Golang',
         'rest_api' => 'REST API',
         'ci_cd' => 'CI/CD',
         'csharp' => 'C#',
         'cpp' => 'C++',
         'machine_learning' => 'Machine Learning',
-        'power_bi' => 'Power BI'
+        'power_bi' => 'Power BI',
+        'artificial_intelligence' => 'AI',
+        'html5' => 'HTML5',
+        'css3' => 'CSS3'
       }.freeze
 
       def initialize(driver, config, profile: nil)
@@ -102,18 +113,10 @@ module EasyApply
       end
 
       def build_boolean_query
-        skills = resolve_search_skills
-        return '' if skills.empty?
+        skill = resolve_primary_skill
+        return '' unless skill
 
-        # Format skill names for LinkedIn search
-        formatted = skills.map { |s| "\"#{display_name(s)}\"" }
-
-        # Build: ("Ruby" OR "Rails" OR "Python") AND ("remote" OR "remoto")
-        query = if formatted.size == 1
-                  formatted.first
-                else
-                  "(#{formatted.join(' OR ')})"
-                end
+        query = "\"#{display_name(skill)}\""
 
         if @config.dig('search', 'include_remote')
           query += ' AND ("remote" OR "remoto")'
@@ -122,21 +125,8 @@ module EasyApply
         query
       end
 
-      def resolve_search_skills
-        # Priority: config search_skills > profile skills
-        custom = @config.dig('search', 'search_skills') || []
-        custom = custom.reject { |s| s.to_s.strip.empty? }
-
-        skills = if custom.any?
-                   custom
-                 elsif @profile
-                   @profile.skills
-                 else
-                   []
-                 end
-
-        max = @config.dig('search', 'max_query_skills') || 5
-        skills.first(max)
+      def resolve_primary_skill
+        @profile&.primary_skill
       end
 
       def display_name(skill)

@@ -9,6 +9,10 @@ module EasyApply
         @data = profile_data
       end
 
+      def primary_skill
+        data['primary_skill']&.to_s&.downcase&.strip || skills.first
+      end
+
       def skills
         @skills ||= (data['skills'] || []).map { |s| s.to_s.downcase.strip }
       end

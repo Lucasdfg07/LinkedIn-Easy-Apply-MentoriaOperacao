@@ -2,12 +2,8 @@ linkedin:
   li_at: "YOUR_LI_AT_COOKIE_HERE"
 
 search:
-  # Skills para busca sao lidas automaticamente do profile.yml
-  # Use search_skills para sobrescrever (opcional — se vazio, usa profile.skills)
-  search_skills: []
-
-  # Maximo de skills na query booleana (evita URL muito longa)
-  max_query_skills: 5
+  # A skill de busca vem automaticamente do primary_skill no profile.yml
+  # Query gerada: "Ruby" AND ("remote" OR "remoto")
 
   # Incluir filtro de remoto na query booleana
   include_remote: true

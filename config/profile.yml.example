@@ -17,6 +17,10 @@ education:
   degree: "bachelor"  # Options: high_school, associate, bachelor, master, phd
   field: "Computer Science"
 
+# Skill principal — usada na busca de vagas no LinkedIn
+# Deve ser a tecnologia que define seu perfil (ex: ruby, react, python, node)
+primary_skill: ruby
+
 skills:
   - ruby
   - rails

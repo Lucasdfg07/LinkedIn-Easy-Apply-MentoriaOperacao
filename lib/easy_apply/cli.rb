@@ -53,7 +53,8 @@ module EasyApply
       wt_label = { 1 => 'On-site', 2 => 'Remote', 3 => 'Hybrid' }[work_type]
       puts "  Work type: #{wt_label}" if wt_label
       puts "  Threshold: #{loader.config.dig('matching', 'threshold')}"
-      puts "  Skills:    #{profile.skills.size} (#{profile.skills.first(5).join(', ')}...)"
+      puts "  Primary:   #{profile.primary_skill}"
+      puts "  Skills:    #{profile.skills.size} total"
       puts ''
 
       if errors.empty?

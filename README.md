@@ -205,18 +205,12 @@ linkedin:
 
 ### Passo 5 — Configurar a busca
 
-A query de busca e **gerada automaticamente** a partir das skills do seu `profile.yml`.
+A query de busca e **gerada automaticamente** a partir da **skill principal** do `profile.yml`.
 Voce so precisa configurar os filtros em `config/config.yml`:
 
 ```yaml
 search:
-  # Skills vem automaticamente do profile.yml (top 5 por padrao)
-  # Para sobrescrever, defina manualmente:
-  search_skills: []             # Vazio = usa profile.yml
-
-  # Quantas skills incluir na query (evita URL muito longa)
-  max_query_skills: 5
-
+  # A skill de busca vem do primary_skill no profile.yml
   # Incluir filtro de remoto na query
   include_remote: true
 
@@ -233,31 +227,38 @@ search:
   easy_apply_only: true
 ```
 
-#### Como funciona a query automatica
+#### Como funciona
 
-O bot le as primeiras N skills do `profile.yml` e monta uma query booleana:
+O bot le o campo `primary_skill` do `profile.yml` e monta a query:
 
-| Profile skills | Query gerada |
-|---------------|--------------|
-| `ruby, rails, javascript, typescript, react` | `("Ruby" OR "Ruby on Rails" OR "Javascript" OR "Typescript" OR "React") AND ("remote" OR "remoto")` |
-| `python, django, postgresql` | `("Python" OR "Django" OR "Postgresql") AND ("remote" OR "remoto")` |
-| `react, nextjs, typescript` | `("React" OR "Next.js" OR "Typescript") AND ("remote" OR "remoto")` |
+| `primary_skill` no profile | Query gerada |
+|---------------------------|--------------|
+| `ruby` | `"Ruby" AND ("remote" OR "remoto")` |
+| `react` | `"React" AND ("remote" OR "remoto")` |
+| `python` | `"Python" AND ("remote" OR "remoto")` |
+| `nodejs` | `"Node.js" AND ("remote" OR "remoto")` |
+| `rails` | `"Ruby on Rails" AND ("remote" OR "remoto")` |
+| `golang` | `"Golang" AND ("remote" OR "remoto")` |
 
-Skills com aliases sao formatadas automaticamente (ex: `rails` → `"Ruby on Rails"`, `nodejs` → `"Node.js"`, `cpp` → `"C++"`).
+A skill e formatada automaticamente para o LinkedIn (ex: `nodejs` → `"Node.js"`, `rails` → `"Ruby on Rails"`, `cpp` → `"C++"`).
 
-Se `include_remote: false`, a parte `AND ("remote" OR "remoto")` e removida.
+Se `include_remote: false`, a query fica apenas `"Ruby"`.
 
-#### Sobrescrevendo skills da busca
-
-Se quiser buscar por skills diferentes das do profile:
+#### Definindo a skill principal no profile.yml
 
 ```yaml
-search:
-  search_skills:
-    - golang
-    - kubernetes
-    - terraform
+# A PRIMEIRA linha relevante do profile define a busca
+primary_skill: ruby    # → busca por "Ruby"
 ```
+
+A `primary_skill` deve ser a tecnologia que **define seu perfil**:
+- Perfil Ruby + React → `primary_skill: ruby`
+- Perfil React + Node → `primary_skill: react`
+- Perfil backend Node → `primary_skill: nodejs`
+- Perfil Python Data → `primary_skill: python`
+- Perfil DevOps → `primary_skill: kubernetes`
+
+> Se `primary_skill` nao estiver definido, o bot usa a **primeira skill** da lista `skills:`.
 
 #### GeoIDs mais usados
 
