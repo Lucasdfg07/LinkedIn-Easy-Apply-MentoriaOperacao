@@ -44,10 +44,14 @@ module EasyApply
 
       if errors.empty?
         puts "\e[32m✓ Config and profile are valid!\e[0m"
-        puts "  Keywords: #{loader.config.dig('search', 'keywords')}"
-        puts "  Location: #{loader.config.dig('search', 'location')}"
+        puts "  Query:     #{loader.config.dig('search', 'keywords')}"
+        posted = loader.config.dig('search', 'posted_hours')
+        puts "  Posted:    last #{posted}h" if posted
+        work_type = loader.config.dig('search', 'work_type')
+        wt_label = { 1 => 'On-site', 2 => 'Remote', 3 => 'Hybrid' }[work_type]
+        puts "  Work type: #{wt_label}" if wt_label
         puts "  Threshold: #{loader.config.dig('matching', 'threshold')}"
-        puts "  Skills: #{(loader.profile['skills'] || []).size}"
+        puts "  Skills:    #{(loader.profile['skills'] || []).size}"
       else
         puts "\e[31m✗ Validation errors:\e[0m"
         errors.each { |e| puts "  - #{e}" }

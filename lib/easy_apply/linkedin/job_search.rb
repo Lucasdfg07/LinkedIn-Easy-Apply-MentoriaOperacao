@@ -11,6 +11,13 @@ module EasyApply
       JOBS_URL = 'https://www.linkedin.com/jobs/search/'
       MAX_PAGES = 10
 
+      # LinkedIn time filter values (f_TPR parameter)
+      TIME_FILTERS = {
+        24 => 'r86400',     # Last 24 hours
+        168 => 'r604800',   # Last week
+        720 => 'r2592000'   # Last month
+      }.freeze
+
       def initialize(driver, config)
         @driver = driver
         @config = config
@@ -46,11 +53,28 @@ module EasyApply
       private
 
       def build_search_url
-        params = {
-          'keywords' => @config.dig('search', 'keywords'),
-          'location' => @config.dig('search', 'location'),
-          'f_AL' => 'true' # Easy Apply filter
-        }
+        params = { 'keywords' => @config.dig('search', 'keywords') }
+
+        # Easy Apply filter
+        params['f_AL'] = 'true' if @config.dig('search', 'easy_apply_only')
+
+        # Time filter — posted in last N hours
+        posted_hours = @config.dig('search', 'posted_hours')
+        if posted_hours
+          tpr = TIME_FILTERS[posted_hours.to_i]
+          params['f_TPR'] = tpr if tpr
+        end
+
+        # Work type filter (1=onsite, 2=remote, 3=hybrid)
+        work_type = @config.dig('search', 'work_type')
+        params['f_WT'] = work_type.to_s if work_type
+
+        # Geographic filter
+        geo_id = @config.dig('search', 'geo_id')
+        params['geoId'] = geo_id.to_s if geo_id
+
+        params['origin'] = 'JOB_SEARCH_PAGE_JOB_FILTER'
+        params['refresh'] = 'true'
 
         "#{JOBS_URL}?#{URI.encode_www_form(params)}"
       end

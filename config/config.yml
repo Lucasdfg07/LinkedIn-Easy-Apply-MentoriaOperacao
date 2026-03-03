@@ -2,8 +2,26 @@ linkedin:
   li_at: "YOUR_LI_AT_COOKIE_HERE"
 
 search:
-  keywords: "Ruby Developer"
-  location: "Brazil"
+  # Query Booleana do LinkedIn — use aspas, AND, OR, NOT
+  # Exemplos:
+  #   Senior Ruby remoto:  "Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")
+  #   Full Stack amplo:    ("Ruby" OR "Rails") AND ("Full Stack" OR "Backend")
+  #   Python Data:         "Python" AND ("Data Engineer" OR "Data Scientist") AND NOT "Intern"
+  keywords: '"Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")'
+
+  # Filtro de tempo — vagas postadas nas ultimas N horas
+  # Opcoes: 24 (ultimo dia), 168 (ultima semana), 720 (ultimo mes), null (qualquer)
+  posted_hours: 24
+
+  # Tipo de trabalho — filtro f_WT do LinkedIn
+  # Opcoes: 1 (presencial), 2 (remoto), 3 (hibrido), null (qualquer)
+  work_type: 2
+
+  # GeoId — ID geografico do LinkedIn
+  # 92000000 = Worldwide, 106057199 = Brazil, 103644278 = US
+  geo_id: 92000000
+
+  # Filtro Easy Apply
   easy_apply_only: true
 
 matching:

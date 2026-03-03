@@ -203,22 +203,79 @@ linkedin:
 
 > **O cookie `li_at` expira a cada ~30 dias.** Se o bot der erro de sessao, repita este passo.
 
-### Passo 5 — Configurar a busca
+### Passo 5 — Configurar a busca (Query Booleana)
 
-Edite `config/config.yml` com os termos da sua busca:
+O bot usa **busca booleana do LinkedIn** para filtros precisos. Edite `config/config.yml`:
 
 ```yaml
 search:
-  keywords: "Ruby Developer"    # O que voce buscaria na barra do LinkedIn
-  location: "Brazil"            # Pais, cidade ou "Remote"
-  easy_apply_only: true         # Apenas vagas com candidatura simplificada
+  # Query Booleana — use aspas, AND, OR, NOT para filtros precisos
+  keywords: '"Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")'
+
+  # Vagas postadas nas ultimas N horas (24 = ultimo dia, 168 = semana, 720 = mes)
+  posted_hours: 24
+
+  # Tipo de trabalho (1 = presencial, 2 = remoto, 3 = hibrido)
+  work_type: 2
+
+  # Area geografica (92000000 = Worldwide, 106057199 = Brazil, 103644278 = US)
+  geo_id: 92000000
+
+  # Apenas Easy Apply
+  easy_apply_only: true
 ```
 
-**Exemplos de keywords:**
-- `"Ruby Developer"` — busca especifica
-- `"Software Engineer"` — busca ampla
-- `"React Frontend Remote"` — busca combinada
-- `"Desenvolvedor Pleno"` — busca em portugues
+#### Como montar a query booleana
+
+| Operador | Significado | Exemplo |
+|----------|-------------|---------|
+| `"termo"` | Busca exata | `"Ruby on Rails"` |
+| `AND` | Deve conter ambos | `"Ruby" AND "remote"` |
+| `OR` | Deve conter um dos dois | `"remote" OR "remoto"` |
+| `NOT` | Exclui resultados | `NOT ("Junior" OR "JR")` |
+| `()` | Agrupa operadores | `("Ruby" OR "Rails") AND "Senior"` |
+
+#### Exemplos prontos por nivel
+
+**Senior remoto (Ruby):**
+```yaml
+keywords: '"Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")'
+```
+
+**Pleno/Senior Full Stack:**
+```yaml
+keywords: '("Ruby" OR "Rails") AND ("Full Stack" OR "Backend") AND NOT ("Junior" OR "Intern" OR "Estágio")'
+```
+
+**Python Data Engineer remoto:**
+```yaml
+keywords: '"Python" AND ("Data Engineer" OR "Data Scientist") AND ("remote" OR "remoto") AND NOT "Intern"'
+```
+
+**React Frontend (qualquer nivel):**
+```yaml
+keywords: '("React" OR "Next.js") AND ("Frontend" OR "Front-end")'
+```
+
+**DevOps/SRE Senior:**
+```yaml
+keywords: '("DevOps" OR "SRE" OR "Platform Engineer") AND ("Senior" OR "Staff" OR "Lead")'
+```
+
+> **Dica:** Teste sua query diretamente no LinkedIn primeiro para verificar se os resultados fazem sentido. A URL gerada pelo bot segue exatamente o mesmo formato.
+
+#### GeoIDs mais usados
+
+| Regiao | GeoId |
+|--------|-------|
+| Worldwide | `92000000` |
+| Brazil | `106057199` |
+| United States | `103644278` |
+| European Union | `91000000` |
+| United Kingdom | `101165590` |
+| Canada | `101174742` |
+| Germany | `101282230` |
+| Portugal | `100364837` |
 
 ### Passo 6 — Validar tudo
 
@@ -229,10 +286,11 @@ ruby bin/easy_apply validate
 Se tudo estiver certo:
 ```
 ✓ Config and profile are valid!
-  Keywords: Ruby Developer
-  Location: Brazil
+  Query:     "Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")
+  Posted:    last 24h
+  Work type: Remote
   Threshold: 0.7
-  Skills: 15
+  Skills:    15
 ```
 
 Se houver erro, o bot dira exatamente o que corrigir.
