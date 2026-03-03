@@ -84,102 +84,149 @@ bundle install
 
 ---
 
-## Configuração
+## Quick Start (Passo a Passo Completo)
 
-### 1. Criar seu perfil
+### Passo 1 — Clonar e instalar
 
 ```bash
-cp config/profile.yml.example config/profile.yml
+git clone https://github.com/Lucasdfg07/LinkedIn-Easy-Apply-MentoriaOperacao.git
+cd LinkedIn-Easy-Apply-MentoriaOperacao
+bundle install
 ```
 
-Edite `config/profile.yml` com seus dados:
+### Passo 2 — Exportar seu perfil do LinkedIn como PDF
+
+1. Acesse seu perfil no LinkedIn: `linkedin.com/in/seu-usuario`
+2. Clique no botao **"More" / "Mais"** (ao lado de "Open to")
+3. Clique em **"Save to PDF" / "Salvar em PDF"**
+4. Salve o arquivo (ex: `MeuPerfil.pdf`)
+
+### Passo 3 — Gerar o `profile.yml` com ChatGPT
+
+Abra o ChatGPT (ou qualquer LLM), **envie o PDF exportado** e cole o seguinte prompt:
+
+---
+
+> **Prompt para colar no ChatGPT:**
+
+````
+Analise o PDF do meu perfil do LinkedIn que enviei e gere um arquivo YAML
+seguindo EXATAMENTE este formato. Preencha todos os campos com os dados
+extraidos do meu perfil.
+
+REGRAS IMPORTANTES:
+- Skills devem ser termos tecnicos em lowercase, sem espacos (use underscore)
+- O campo "degree" deve ser EXATAMENTE um destes: high_school, associate, bachelor, master, phd
+- O campo "years" deve ser o total de anos de experiencia profissional
+- Em "easy_apply_answers", preencha com respostas reais baseadas no meu perfil
+- NAO invente dados — se algo nao consta no PDF, deixe vazio ou com valor generico
+
+FORMATO OBRIGATORIO:
 
 ```yaml
 personal:
-  first_name: "Seu Nome"
-  last_name: "Seu Sobrenome"
-  email: "seu@email.com"
-  phone: "+55 11 99999-9999"
-  city: "Sao Paulo"
-  country: "Brazil"
+  first_name: ""
+  last_name: ""
+  email: ""            # Se nao constar no PDF, deixe "seu@email.com" para eu preencher
+  phone: ""            # Se nao constar no PDF, deixe "+55 11 00000-0000" para eu preencher
+  city: ""
+  country: ""
 
 experience:
-  years: 5
-  current_title: "Senior Software Engineer"
-  summary: "Full stack developer with focus on Ruby and JavaScript"
+  years: 0             # Total de anos de experiencia profissional
+  current_title: ""    # Cargo mais recente
+  summary: ""          # Resumo de 1 linha do headline ou about
 
 education:
-  degree: "bachelor"  # Opções: high_school, associate, bachelor, master, phd
-  field: "Computer Science"
+  degree: ""           # EXATAMENTE: high_school | associate | bachelor | master | phd
+  field: ""            # Area de formacao
 
 skills:
-  - ruby
-  - rails
-  - javascript
-  - postgresql
-  - docker
-  # ... adicione todas as suas skills
+  - skill_em_lowercase
+  - outra_skill
+  # Liste TODAS as skills do perfil + skills implicitas das experiencias
+
+languages:
+  - name: ""
+    proficiency: ""    # native | professional | limited
 
 easy_apply_answers:
-  # Respostas para perguntas comuns do Easy Apply
-  # O bot faz match por keyword no label da pergunta
-  "years of experience": "5"
+  "years of experience": ""
   "salary expectation": "Open to discuss"
   "work authorization": "Yes"
   "sponsorship": "No"
   "remote": "Yes"
   "start date": "Immediately"
+  "notice period": "2 weeks"
+  "willing to relocate": "Yes"
+  "linkedin profile": ""     # URL do meu LinkedIn
+  "website": ""              # Se houver
+  "github": ""               # Se houver
 ```
 
-### 2. Obter o cookie `li_at`
-
-O bot usa o cookie de sessão do LinkedIn para autenticar. Para obter:
-
-1. Faça login no LinkedIn no navegador
-2. Abra DevTools (F12) → aba **Application** → **Cookies** → `https://www.linkedin.com`
-3. Copie o valor do cookie `li_at`
-4. Cole em `config/config.yml`:
-
-```yaml
-linkedin:
-  li_at: "AQEDAQxxxxxxxxxxxxxxxxxxxxxx..."
-```
-
-> **Nota:** O cookie `li_at` expira periodicamente. Se o bot reportar erro de sessão, obtenha um novo cookie.
-
-### 3. Configurar busca
-
-Edite `config/config.yml`:
-
-```yaml
-search:
-  keywords: "Ruby Developer"    # Termos de busca
-  location: "Brazil"            # Localização
-  easy_apply_only: true         # Apenas vagas Easy Apply
-```
-
-### 4. Ajustar matching (opcional)
-
-```yaml
-matching:
-  threshold: 0.70               # Score mínimo para aplicar (0.0 - 1.0)
-  weights:
-    skills: 0.60                # Peso das skills (60%)
-    experience: 0.25            # Peso da experiência (25%)
-    education: 0.15             # Peso da educação (15%)
-```
+Retorne SOMENTE o YAML, sem explicacoes. Vou copiar e colar direto no arquivo.
+````
 
 ---
 
-## Uso
+Depois que o ChatGPT gerar o YAML:
 
-### Validar configuração
+```bash
+# Crie o arquivo de perfil
+cp config/profile.yml.example config/profile.yml
+
+# Cole o conteudo gerado pelo ChatGPT no arquivo:
+# Abra config/profile.yml no seu editor e substitua o conteudo
+```
+
+> **Dica:** Revise o YAML gerado. Confira se email, telefone e skills estao corretos. O ChatGPT pode nao ter acesso a todos os dados do PDF.
+
+### Passo 4 — Obter o cookie `li_at`
+
+O bot usa o cookie de sessao do LinkedIn para autenticar (sem precisar de login/senha):
+
+1. Abra o **Google Chrome** e faca login no LinkedIn normalmente
+2. Pressione **F12** para abrir o DevTools
+3. Va na aba **Application** (ou "Aplicativo")
+4. No menu lateral, expanda **Cookies** → clique em `https://www.linkedin.com`
+5. Procure o cookie chamado **`li_at`**
+6. Clique no valor e copie (e um texto longo tipo `AQEDAQNj...`)
+
+![Como encontrar o cookie li_at](https://i.imgur.com/placeholder.png)
+
+Agora cole o valor em `config/config.yml`:
+
+```yaml
+linkedin:
+  li_at: "AQEDAQxxxxxxxxxxxxxxxxxxxxxx..."   # Cole aqui o valor copiado
+```
+
+> **O cookie `li_at` expira a cada ~30 dias.** Se o bot der erro de sessao, repita este passo.
+
+### Passo 5 — Configurar a busca
+
+Edite `config/config.yml` com os termos da sua busca:
+
+```yaml
+search:
+  keywords: "Ruby Developer"    # O que voce buscaria na barra do LinkedIn
+  location: "Brazil"            # Pais, cidade ou "Remote"
+  easy_apply_only: true         # Apenas vagas com candidatura simplificada
+```
+
+**Exemplos de keywords:**
+- `"Ruby Developer"` — busca especifica
+- `"Software Engineer"` — busca ampla
+- `"React Frontend Remote"` — busca combinada
+- `"Desenvolvedor Pleno"` — busca em portugues
+
+### Passo 6 — Validar tudo
 
 ```bash
 ruby bin/easy_apply validate
 ```
 
-Saída esperada:
+Se tudo estiver certo:
 ```
 ✓ Config and profile are valid!
   Keywords: Ruby Developer
@@ -188,69 +235,106 @@ Saída esperada:
   Skills: 15
 ```
 
-### Modo Dry Run (recomendado primeiro)
+Se houver erro, o bot dira exatamente o que corrigir.
 
-Busca vagas e mostra scores sem aplicar:
+### Passo 7 — Testar com Dry Run (IMPORTANTE!)
+
+**Sempre rode o dry run primeiro** para ver os scores sem aplicar de verdade:
 
 ```bash
 ruby bin/easy_apply run --dry-run
 ```
 
-Saída:
-```
-✓ [0.850] Senior Ruby Developer @ Acme Corp
-  Skills: ruby, rails, postgresql
-  Exp: 1.0 | Edu: 1.0
+O bot vai:
+- Abrir o Chrome
+- Fazer login com seu cookie
+- Buscar vagas
+- Mostrar o score de cada uma
+- **NAO aplicar para nenhuma**
 
-✗ [0.450] Go/Rust Engineer @ StartupXYZ
-  Skills:
-  Exp: 0.3 | Edu: 1.0
+Verifique se os scores fazem sentido. Se muitas vagas boas estao sendo puladas, diminua o threshold em `config.yml`:
 
-=== Dry Run Complete ===
-Jobs processed: 25
-Would apply: 18
-Skipped: 7
+```yaml
+matching:
+  threshold: 0.60   # Mais permissivo (default: 0.70)
 ```
 
-### Modo Live (aplica de verdade)
+### Passo 8 — Rodar de verdade
+
+Quando estiver satisfeito com o dry run:
 
 ```bash
 ruby bin/easy_apply run
 ```
 
-### Ver estatísticas
+O bot vai rodar em loop:
+1. Busca vagas → Pontua → Aplica se score >= threshold
+2. Espera 60 segundos
+3. Repete
+
+**Para parar:** pressione `Ctrl+C` a qualquer momento (o bot para graciosamente).
+
+### Passo 9 — Acompanhar resultados
 
 ```bash
 ruby bin/easy_apply status
 ```
 
-Saída:
-```
-=== Easy Apply Bot Status ===
-Jobs seen:        142
-Total decisions:  89
-Applied:          34
-Skipped:          48
-Failed:           7
-Average score:    0.721
+Ou confira diretamente o log em `data/applications_log.json`.
 
---- Recent Applications ---
-  ✓ Ruby Developer @ TechCo (0.92) [applied]
-  ✗ Python Engineer @ DataInc (0.45) [skipped]
-  ✓ Full Stack Dev @ StartUp (0.78) [applied]
-```
+---
 
-### Opções do CLI
+## Configuracao Avancada
 
-```bash
-ruby bin/easy_apply help run
+### Ajustar matching
+
+```yaml
+matching:
+  threshold: 0.70               # Score minimo para aplicar (0.0 - 1.0)
+  weights:
+    skills: 0.60                # Peso das skills (60%)
+    experience: 0.25            # Peso da experiencia (25%)
+    education: 0.15             # Peso da educacao (15%)
 ```
 
-| Flag | Default | Descrição |
+### Ajustar velocidade e seguranca
+
+```yaml
+polling:
+  interval_seconds: 60                    # Tempo entre ciclos de busca
+  max_applications_per_session: 50        # Maximo de aplicacoes por sessao
+  break_after_applications: 7             # Pausa a cada N aplicacoes
+  break_duration_seconds_min: 120         # Pausa minima (2 min)
+  break_duration_seconds_max: 300         # Pausa maxima (5 min)
+
+delays:
+  between_actions_min: 0.8               # Delay entre cliques (seg)
+  between_actions_max: 2.5
+  between_applications_min: 15           # Espera entre candidaturas (seg)
+  between_applications_max: 45
+```
+
+> **Dica de seguranca:** Se quiser ser mais conservador, aumente os delays e diminua o max_applications_per_session para 20-30.
+
+---
+
+## Referencia de Comandos
+
+| Comando | O que faz |
+|---------|-----------|
+| `ruby bin/easy_apply validate` | Valida config + profile e mostra resumo |
+| `ruby bin/easy_apply run --dry-run` | Busca vagas, mostra scores, **nao aplica** |
+| `ruby bin/easy_apply run` | Modo live: busca + pontua + aplica em loop |
+| `ruby bin/easy_apply status` | Mostra estatisticas da sessao |
+| `ruby bin/easy_apply help` | Lista todos os comandos |
+
+### Flags do `run`
+
+| Flag | Default | Descricao |
 |------|---------|-----------|
 | `--dry-run` | `false` | Busca e pontua sem aplicar |
-| `--config` | `config/config.yml` | Caminho para arquivo de config |
-| `--profile` | `config/profile.yml` | Caminho para arquivo de perfil |
+| `--config PATH` | `config/config.yml` | Caminho para config alternativo |
+| `--profile PATH` | `config/profile.yml` | Caminho para profile alternativo |
 
 ---
 
@@ -446,51 +530,6 @@ Log append-only de todas as decisões:
     }
   }
 ]
-```
-
----
-
-## Configuração Completa
-
-### `config/config.yml`
-
-```yaml
-linkedin:
-  li_at: "YOUR_LI_AT_COOKIE_HERE"        # Cookie de sessão LinkedIn
-
-search:
-  keywords: "Ruby Developer"              # Termos de busca
-  location: "Brazil"                      # Localização
-  easy_apply_only: true                   # Filtrar Easy Apply
-
-matching:
-  threshold: 0.70                         # Score mínimo (0.0 - 1.0)
-  weights:
-    skills: 0.60                          # Peso skills
-    experience: 0.25                      # Peso experiência
-    education: 0.15                       # Peso educação
-
-polling:
-  interval_seconds: 60                    # Intervalo entre ciclos
-  max_applications_per_session: 50        # Cap por sessão
-  break_after_applications: 7             # Pausa a cada N aplicações
-  break_duration_seconds_min: 120         # Break mínimo (2 min)
-  break_duration_seconds_max: 300         # Break máximo (5 min)
-
-delays:
-  between_actions_min: 0.8               # Delay mín entre ações (seg)
-  between_actions_max: 2.5               # Delay máx entre ações (seg)
-  between_applications_min: 15           # Pausa mín entre aplicações (seg)
-  between_applications_max: 45           # Pausa máx entre aplicações (seg)
-  typing_delay_min_ms: 50               # Velocidade digitação mín (ms)
-  typing_delay_max_ms: 200              # Velocidade digitação máx (ms)
-
-browser:
-  headless: false                         # true = sem janela visível
-  window_width_min: 1200                  # Largura mín da janela
-  window_width_max: 1400                  # Largura máx da janela
-  window_height_min: 800                  # Altura mín da janela
-  window_height_max: 1000                 # Altura máx da janela
 ```
 
 ---
