@@ -77,10 +77,12 @@ google-chrome --version
 
 ```bash
 git clone https://github.com/Lucasdfg07/LinkedIn-Easy-Apply-MentoriaOperacao.git
-cd LinkedIn-Easy-Apply-MentoriaOperacao
+cd LinkedIn-Easy-Apply-MentoriaOperacao/bot
 
 bundle install
 ```
+
+> **Importante:** Todos os comandos do bot devem ser executados de dentro da pasta `bot/`.
 
 ---
 
@@ -90,7 +92,7 @@ bundle install
 
 ```bash
 git clone https://github.com/Lucasdfg07/LinkedIn-Easy-Apply-MentoriaOperacao.git
-cd LinkedIn-Easy-Apply-MentoriaOperacao
+cd LinkedIn-Easy-Apply-MentoriaOperacao/bot
 bundle install
 ```
 
@@ -281,11 +283,12 @@ ruby bin/easy_apply validate
 
 Se tudo estiver certo:
 ```
-  Query:     ("Ruby" OR "Ruby on Rails" OR "Javascript" OR "Typescript" OR "React") AND ("remote" OR "remoto")
+  Query:     "Ruby" AND ("remote" OR "remoto")
   Posted:    last 24h
   Work type: Remote
   Threshold: 0.7
-  Skills:    15 (ruby, rails, javascript, typescript, react...)
+  Primary:   ruby
+  Skills:    15 total
 
 ✓ Config and profile are valid!
 ```
@@ -375,9 +378,15 @@ delays:
 
 ## Referencia de Comandos
 
+> **Todos os comandos devem ser executados de dentro da pasta `bot/`**
+
+```bash
+cd bot
+```
+
 | Comando | O que faz |
 |---------|-----------|
-| `ruby bin/easy_apply validate` | Valida config + profile e mostra resumo |
+| `ruby bin/easy_apply validate` | Valida config + profile e mostra a query gerada |
 | `ruby bin/easy_apply run --dry-run` | Busca vagas, mostra scores, **nao aplica** |
 | `ruby bin/easy_apply run` | Modo live: busca + pontua + aplica em loop |
 | `ruby bin/easy_apply status` | Mostra estatisticas da sessao |
