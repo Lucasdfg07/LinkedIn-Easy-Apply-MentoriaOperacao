@@ -1,0 +1,56 @@
+# Copy this file to profile.yml and fill in your details
+
+personal:
+  first_name: "John"
+  last_name: "Doe"
+  email: "john.doe@example.com"
+  phone: "+55 11 99999-9999"
+  city: "Sao Paulo"
+  country: "Brazil"
+
+experience:
+  years: 5
+  current_title: "Senior Software Engineer"
+  summary: "Full stack developer with focus on Ruby and JavaScript"
+
+education:
+  degree: "bachelor"  # Options: high_school, associate, bachelor, master, phd
+  field: "Computer Science"
+
+skills:
+  - ruby
+  - rails
+  - javascript
+  - typescript
+  - react
+  - postgresql
+  - redis
+  - docker
+  - git
+  - rest_api
+  - graphql
+  - aws
+  - linux
+  - rspec
+  - sidekiq
+
+languages:
+  - name: "Portuguese"
+    proficiency: "native"
+  - name: "English"
+    proficiency: "professional"
+
+easy_apply_answers:
+  # Map common Easy Apply question keywords to answers
+  # The bot matches question labels to these keys
+  "years of experience": "5"
+  "salary expectation": "Open to discuss"
+  "work authorization": "Yes"
+  "sponsorship": "No"
+  "remote": "Yes"
+  "start date": "Immediately"
+  "notice period": "2 weeks"
+  "willing to relocate": "Yes"
+  "linkedin profile": "https://linkedin.com/in/johndoe"
+  "website": "https://johndoe.dev"
+  "github": "https://github.com/johndoe"

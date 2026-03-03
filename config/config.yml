@@ -1,0 +1,36 @@
+linkedin:
+  li_at: "YOUR_LI_AT_COOKIE_HERE"
+
+search:
+  keywords: "Ruby Developer"
+  location: "Brazil"
+  easy_apply_only: true
+
+matching:
+  threshold: 0.70
+  weights:
+    skills: 0.60
+    experience: 0.25
+    education: 0.15
+
+polling:
+  interval_seconds: 60
+  max_applications_per_session: 50
+  break_after_applications: 7
+  break_duration_seconds_min: 120
+  break_duration_seconds_max: 300
+
+delays:
+  between_actions_min: 0.8
+  between_actions_max: 2.5
+  between_applications_min: 15
+  between_applications_max: 45
+  typing_delay_min_ms: 50
+  typing_delay_max_ms: 200
+
+browser:
+  headless: false
+  window_width_min: 1200
+  window_width_max: 1400
+  window_height_min: 800
+  window_height_max: 1000

@@ -1,0 +1,9 @@
+log/
+data/seen_jobs.json
+data/applications_log.json
+config/profile.yml
+.bundle/
+vendor/
+*.gem
+.rspec_status
+spec/tmp/
