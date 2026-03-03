@@ -2,26 +2,26 @@ linkedin:
   li_at: "YOUR_LI_AT_COOKIE_HERE"
 
 search:
-  # Query Booleana do LinkedIn — use aspas, AND, OR, NOT
-  # Exemplos:
-  #   Senior Ruby remoto:  "Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")
-  #   Full Stack amplo:    ("Ruby" OR "Rails") AND ("Full Stack" OR "Backend")
-  #   Python Data:         "Python" AND ("Data Engineer" OR "Data Scientist") AND NOT "Intern"
-  keywords: '"Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")'
+  # Skills para busca sao lidas automaticamente do profile.yml
+  # Use search_skills para sobrescrever (opcional — se vazio, usa profile.skills)
+  search_skills: []
 
-  # Filtro de tempo — vagas postadas nas ultimas N horas
-  # Opcoes: 24 (ultimo dia), 168 (ultima semana), 720 (ultimo mes), null (qualquer)
+  # Maximo de skills na query booleana (evita URL muito longa)
+  max_query_skills: 5
+
+  # Incluir filtro de remoto na query booleana
+  include_remote: true
+
+  # Vagas postadas nas ultimas N horas (24 = ultimo dia, 168 = semana, 720 = mes)
   posted_hours: 24
 
-  # Tipo de trabalho — filtro f_WT do LinkedIn
-  # Opcoes: 1 (presencial), 2 (remoto), 3 (hibrido), null (qualquer)
+  # Tipo de trabalho — filtro f_WT do LinkedIn (1 = presencial, 2 = remoto, 3 = hibrido)
   work_type: 2
 
-  # GeoId — ID geografico do LinkedIn
-  # 92000000 = Worldwide, 106057199 = Brazil, 103644278 = US
+  # GeoId — 92000000 = Worldwide, 106057199 = Brazil, 103644278 = US
   geo_id: 92000000
 
-  # Filtro Easy Apply
+  # Apenas Easy Apply
   easy_apply_only: true
 
 matching:

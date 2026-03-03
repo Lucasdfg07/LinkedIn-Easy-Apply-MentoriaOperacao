@@ -18,14 +18,31 @@ module EasyApply
         720 => 'r2592000'   # Last month
       }.freeze
 
-      def initialize(driver, config)
+      # Skills that map to more recognizable search terms for LinkedIn
+      SKILL_DISPLAY_NAMES = {
+        'rails' => 'Ruby on Rails',
+        'nodejs' => 'Node.js',
+        'nextjs' => 'Next.js',
+        'vuejs' => 'Vue.js',
+        'react_native' => 'React Native',
+        'rest_api' => 'REST API',
+        'ci_cd' => 'CI/CD',
+        'csharp' => 'C#',
+        'cpp' => 'C++',
+        'machine_learning' => 'Machine Learning',
+        'power_bi' => 'Power BI'
+      }.freeze
+
+      def initialize(driver, config, profile: nil)
         @driver = driver
         @config = config
+        @profile = profile
       end
 
       def search
         url = build_search_url
-        Log.info("Searching jobs: #{url}")
+        Log.info("Search query: #{built_query}")
+        Log.info("Search URL: #{url}")
 
         @driver.navigate.to(url)
         AntiDetection.action_delay(@config)
@@ -50,10 +67,15 @@ module EasyApply
         jobs
       end
 
+      # Expose the generated query for validate/debug
+      def built_query
+        build_boolean_query
+      end
+
       private
 
       def build_search_url
-        params = { 'keywords' => @config.dig('search', 'keywords') }
+        params = { 'keywords' => build_boolean_query }
 
         # Easy Apply filter
         params['f_AL'] = 'true' if @config.dig('search', 'easy_apply_only')
@@ -77,6 +99,48 @@ module EasyApply
         params['refresh'] = 'true'
 
         "#{JOBS_URL}?#{URI.encode_www_form(params)}"
+      end
+
+      def build_boolean_query
+        skills = resolve_search_skills
+        return '' if skills.empty?
+
+        # Format skill names for LinkedIn search
+        formatted = skills.map { |s| "\"#{display_name(s)}\"" }
+
+        # Build: ("Ruby" OR "Rails" OR "Python") AND ("remote" OR "remoto")
+        query = if formatted.size == 1
+                  formatted.first
+                else
+                  "(#{formatted.join(' OR ')})"
+                end
+
+        if @config.dig('search', 'include_remote')
+          query += ' AND ("remote" OR "remoto")'
+        end
+
+        query
+      end
+
+      def resolve_search_skills
+        # Priority: config search_skills > profile skills
+        custom = @config.dig('search', 'search_skills') || []
+        custom = custom.reject { |s| s.to_s.strip.empty? }
+
+        skills = if custom.any?
+                   custom
+                 elsif @profile
+                   @profile.skills
+                 else
+                   []
+                 end
+
+        max = @config.dig('search', 'max_query_skills') || 5
+        skills.first(max)
+      end
+
+      def display_name(skill)
+        SKILL_DISPLAY_NAMES[skill] || skill.tr('_', ' ').split.map(&:capitalize).join(' ')
       end
 
       def extract_job_cards

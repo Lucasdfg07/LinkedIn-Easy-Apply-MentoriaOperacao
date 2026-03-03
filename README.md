@@ -203,14 +203,22 @@ linkedin:
 
 > **O cookie `li_at` expira a cada ~30 dias.** Se o bot der erro de sessao, repita este passo.
 
-### Passo 5 — Configurar a busca (Query Booleana)
+### Passo 5 — Configurar a busca
 
-O bot usa **busca booleana do LinkedIn** para filtros precisos. Edite `config/config.yml`:
+A query de busca e **gerada automaticamente** a partir das skills do seu `profile.yml`.
+Voce so precisa configurar os filtros em `config/config.yml`:
 
 ```yaml
 search:
-  # Query Booleana — use aspas, AND, OR, NOT para filtros precisos
-  keywords: '"Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")'
+  # Skills vem automaticamente do profile.yml (top 5 por padrao)
+  # Para sobrescrever, defina manualmente:
+  search_skills: []             # Vazio = usa profile.yml
+
+  # Quantas skills incluir na query (evita URL muito longa)
+  max_query_skills: 5
+
+  # Incluir filtro de remoto na query
+  include_remote: true
 
   # Vagas postadas nas ultimas N horas (24 = ultimo dia, 168 = semana, 720 = mes)
   posted_hours: 24
@@ -225,44 +233,31 @@ search:
   easy_apply_only: true
 ```
 
-#### Como montar a query booleana
+#### Como funciona a query automatica
 
-| Operador | Significado | Exemplo |
-|----------|-------------|---------|
-| `"termo"` | Busca exata | `"Ruby on Rails"` |
-| `AND` | Deve conter ambos | `"Ruby" AND "remote"` |
-| `OR` | Deve conter um dos dois | `"remote" OR "remoto"` |
-| `NOT` | Exclui resultados | `NOT ("Junior" OR "JR")` |
-| `()` | Agrupa operadores | `("Ruby" OR "Rails") AND "Senior"` |
+O bot le as primeiras N skills do `profile.yml` e monta uma query booleana:
 
-#### Exemplos prontos por nivel
+| Profile skills | Query gerada |
+|---------------|--------------|
+| `ruby, rails, javascript, typescript, react` | `("Ruby" OR "Ruby on Rails" OR "Javascript" OR "Typescript" OR "React") AND ("remote" OR "remoto")` |
+| `python, django, postgresql` | `("Python" OR "Django" OR "Postgresql") AND ("remote" OR "remoto")` |
+| `react, nextjs, typescript` | `("React" OR "Next.js" OR "Typescript") AND ("remote" OR "remoto")` |
 
-**Senior remoto (Ruby):**
+Skills com aliases sao formatadas automaticamente (ex: `rails` → `"Ruby on Rails"`, `nodejs` → `"Node.js"`, `cpp` → `"C++"`).
+
+Se `include_remote: false`, a parte `AND ("remote" OR "remoto")` e removida.
+
+#### Sobrescrevendo skills da busca
+
+Se quiser buscar por skills diferentes das do profile:
+
 ```yaml
-keywords: '"Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")'
+search:
+  search_skills:
+    - golang
+    - kubernetes
+    - terraform
 ```
-
-**Pleno/Senior Full Stack:**
-```yaml
-keywords: '("Ruby" OR "Rails") AND ("Full Stack" OR "Backend") AND NOT ("Junior" OR "Intern" OR "Estágio")'
-```
-
-**Python Data Engineer remoto:**
-```yaml
-keywords: '"Python" AND ("Data Engineer" OR "Data Scientist") AND ("remote" OR "remoto") AND NOT "Intern"'
-```
-
-**React Frontend (qualquer nivel):**
-```yaml
-keywords: '("React" OR "Next.js") AND ("Frontend" OR "Front-end")'
-```
-
-**DevOps/SRE Senior:**
-```yaml
-keywords: '("DevOps" OR "SRE" OR "Platform Engineer") AND ("Senior" OR "Staff" OR "Lead")'
-```
-
-> **Dica:** Teste sua query diretamente no LinkedIn primeiro para verificar se os resultados fazem sentido. A URL gerada pelo bot segue exatamente o mesmo formato.
 
 #### GeoIDs mais usados
 
@@ -285,12 +280,13 @@ ruby bin/easy_apply validate
 
 Se tudo estiver certo:
 ```
-✓ Config and profile are valid!
-  Query:     "Ruby" AND ("remote" OR "remoto") AND NOT ("Junior" OR "JR" OR "Entry")
+  Query:     ("Ruby" OR "Ruby on Rails" OR "Javascript" OR "Typescript" OR "React") AND ("remote" OR "remoto")
   Posted:    last 24h
   Work type: Remote
   Threshold: 0.7
-  Skills:    15
+  Skills:    15 (ruby, rails, javascript, typescript, react...)
+
+✓ Config and profile are valid!
 ```
 
 Se houver erro, o bot dira exatamente o que corrigir.

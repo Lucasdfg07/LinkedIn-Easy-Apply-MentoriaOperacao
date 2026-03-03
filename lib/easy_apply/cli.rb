@@ -42,16 +42,22 @@ module EasyApply
       loader.load!
       errors = loader.validate!
 
+      profile = Matching::Profile.new(loader.profile)
+      search = LinkedIn::JobSearch.new(nil, loader.config, profile: profile)
+
+      puts ''
+      puts "  Query:     #{search.built_query}"
+      posted = loader.config.dig('search', 'posted_hours')
+      puts "  Posted:    last #{posted}h" if posted
+      work_type = loader.config.dig('search', 'work_type')
+      wt_label = { 1 => 'On-site', 2 => 'Remote', 3 => 'Hybrid' }[work_type]
+      puts "  Work type: #{wt_label}" if wt_label
+      puts "  Threshold: #{loader.config.dig('matching', 'threshold')}"
+      puts "  Skills:    #{profile.skills.size} (#{profile.skills.first(5).join(', ')}...)"
+      puts ''
+
       if errors.empty?
         puts "\e[32m✓ Config and profile are valid!\e[0m"
-        puts "  Query:     #{loader.config.dig('search', 'keywords')}"
-        posted = loader.config.dig('search', 'posted_hours')
-        puts "  Posted:    last #{posted}h" if posted
-        work_type = loader.config.dig('search', 'work_type')
-        wt_label = { 1 => 'On-site', 2 => 'Remote', 3 => 'Hybrid' }[work_type]
-        puts "  Work type: #{wt_label}" if wt_label
-        puts "  Threshold: #{loader.config.dig('matching', 'threshold')}"
-        puts "  Skills:    #{(loader.profile['skills'] || []).size}"
       else
         puts "\e[31m✗ Validation errors:\e[0m"
         errors.each { |e| puts "  - #{e}" }
@@ -109,7 +115,7 @@ module EasyApply
 
       begin
         session.login_with_cookie!
-        search = LinkedIn::JobSearch.new(driver, config)
+        search = LinkedIn::JobSearch.new(driver, config, profile: profile)
         parser = LinkedIn::JobParser.new(driver, config)
 
         jobs = search.search
@@ -161,7 +167,7 @@ module EasyApply
 
       begin
         session.login_with_cookie!
-        search = LinkedIn::JobSearch.new(driver, config)
+        search = LinkedIn::JobSearch.new(driver, config, profile: profile)
         parser = LinkedIn::JobParser.new(driver, config)
         applier = LinkedIn::EasyApplyFlow.new(driver, config, profile)
 
