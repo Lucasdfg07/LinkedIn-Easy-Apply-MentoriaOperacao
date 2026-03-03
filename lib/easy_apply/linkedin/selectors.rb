@@ -3,24 +3,26 @@
 module EasyApply
   module LinkedIn
     module Selectors
-      # Job search results page
+      # Job search results page (updated 2026-03)
       JOB_CARD = '.job-card-container'
-      JOB_CARD_LINK = '.job-card-container__link'
-      JOB_CARD_TITLE = '.job-card-list__title'
-      JOB_CARD_COMPANY = '.job-card-container__primary-description'
-      JOB_CARD_LOCATION = '.job-card-container__metadata-item'
-      JOB_LIST = '.jobs-search-results-list'
-      JOB_LIST_ITEMS = '.jobs-search-results__list-item'
+      JOB_CARD_CLICKABLE = '.job-card-container--clickable'
+      JOB_CARD_LINK = '.job-card-container a'
+      JOB_CARD_TITLE = '.job-card-list__title, .artdeco-entity-lockup__title'
+      JOB_CARD_COMPANY = '.artdeco-entity-lockup__subtitle, .job-card-container__primary-description'
+      JOB_CARD_LOCATION = '.artdeco-entity-lockup__caption, .job-card-container__metadata-item'
+      JOB_LIST_ITEMS = 'li[data-occludable-job-id]'
+      JOB_LIST_ITEMS_ALT = '.scaffold-layout__list-item'
+      JOB_DATA_ID = '[data-job-id]'
       PAGINATION_NEXT = 'button[aria-label="View next page"]'
       NO_RESULTS = '.jobs-search-no-results-banner'
 
       # Job detail panel
       JOB_DETAIL_PANEL = '.jobs-search__job-details'
-      JOB_TITLE = '.job-details-jobs-unified-top-card__job-title'
+      JOB_TITLE = '.job-details-jobs-unified-top-card__job-title, .t-24.job-details-jobs'
       JOB_COMPANY = '.job-details-jobs-unified-top-card__company-name'
       JOB_LOCATION_DETAIL = '.job-details-jobs-unified-top-card__bullet'
-      JOB_DESCRIPTION = '.jobs-description__content'
-      JOB_DESCRIPTION_TEXT = '.jobs-description-content__text'
+      JOB_DESCRIPTION = '.jobs-description__content, .jobs-description'
+      JOB_DESCRIPTION_TEXT = '.jobs-description-content__text, .jobs-description__content .jobs-box__html-content'
       JOB_CRITERIA = '.job-details-jobs-unified-top-card__job-insight'
       JOB_ID_ATTR = 'data-job-id'
 

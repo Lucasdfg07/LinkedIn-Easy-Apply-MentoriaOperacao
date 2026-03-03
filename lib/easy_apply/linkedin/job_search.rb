@@ -134,8 +134,12 @@ module EasyApply
       end
 
       def extract_job_cards
-        wait_for_elements(@driver, :css, Selectors::JOB_LIST_ITEMS, timeout: 15)
-        items = safe_find_all(@driver, :css, Selectors::JOB_LIST_ITEMS)
+        # Scroll to load all job cards
+        scroll_job_list
+
+        # Try primary selector, then fallback
+        items = find_job_items
+        Log.debug("Found #{items.size} job list items")
 
         items.filter_map do |item|
           extract_card_data(item)
@@ -145,13 +149,41 @@ module EasyApply
         end
       end
 
-      def extract_card_data(item)
-        link = item.find_element(:css, 'a')
-        href = link&.attribute('href')
-        return nil unless href
+      def find_job_items
+        # Primary: li with data-occludable-job-id (most reliable, 2026)
+        items = wait_for_elements(@driver, :css, Selectors::JOB_LIST_ITEMS, timeout: 10)
+        return items if items.any?
 
-        job_id = extract_job_id(href)
+        # Fallback: scaffold list items
+        items = safe_find_all(@driver, :css, Selectors::JOB_LIST_ITEMS_ALT)
+        return items if items.any?
+
+        # Last resort: any element with data-job-id
+        safe_find_all(@driver, :css, Selectors::JOB_DATA_ID)
+      end
+
+      def scroll_job_list
+        3.times do
+          @driver.execute_script(<<~JS)
+            const list = document.querySelector('.scaffold-layout__list');
+            if (list) list.scrollTop = list.scrollHeight;
+          JS
+          sleep(1)
+        end
+      end
+
+      def extract_card_data(item)
+        # Extract job ID from the item or its link
+        job_id = item.attribute('data-occludable-job-id')
+        job_id ||= extract_job_id_from_element(item)
         return nil unless job_id
+
+        link = begin
+          item.find_element(:css, 'a')
+        rescue Selenium::WebDriver::Error::NoSuchElementError
+          nil
+        end
+        href = link&.attribute('href')
 
         title_el = begin
           item.find_element(:css, Selectors::JOB_CARD_TITLE)
@@ -165,15 +197,42 @@ module EasyApply
           nil
         end
 
+        title = title_el&.text&.strip
+        company = company_el&.text&.strip
+
+        # Skip empty cards (not yet loaded/occluded)
+        return nil if title.nil? || title.empty?
+
         {
           id: job_id,
-          title: title_el&.text&.strip,
-          company: company_el&.text&.strip,
-          url: href
+          title: title,
+          company: company,
+          url: href || "https://www.linkedin.com/jobs/view/#{job_id}/"
         }
       end
 
-      def extract_job_id(url)
+      def extract_job_id_from_element(item)
+        # Try data-job-id on child elements
+        el = begin
+          item.find_element(:css, '[data-job-id]')
+        rescue Selenium::WebDriver::Error::NoSuchElementError
+          nil
+        end
+        return el.attribute('data-job-id') if el
+
+        # Try extracting from link href
+        link = begin
+          item.find_element(:css, 'a')
+        rescue Selenium::WebDriver::Error::NoSuchElementError
+          nil
+        end
+        return nil unless link
+
+        href = link.attribute('href')
+        extract_job_id_from_url(href) if href
+      end
+
+      def extract_job_id_from_url(url)
         match = url.match(/currentJobId=(\d+)/) || url.match(/\/view\/(\d+)/)
         match&.[](1)
       end
